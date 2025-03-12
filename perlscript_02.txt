@@ -1,0 +1,429 @@
+#####################################
+#######Parameter for this files are as below :
+###### 1.SourceLocation :  Location of the Input file  
+###### 2.SourceFile     :   Name of the Source file  
+###### 3.Reference File  :   Name of the Reference file  used for enriching the value
+###### 4.DestPath        :  Location of Output file 
+###### 5.RenameSourceFile : True/False ( Rename the source file to identify that it's processed)
+############################
+
+
+use Text:: ParseWords;
+use File:: Copy;
+use OLE;
+use Time:: Local;
+use POSIX qw/strftime/;
+=pod
+=cut
+
+my $sProgram = $0;
+if (scalar (@ARGV) != 5)
+{
+print "USAGE: $sProgram ‹SourceLocation> <SourceFile> < RefFile1> <DestPath> ‹RenameSourceFlag>"; 
+exit 1;
+}
+
+
+my ($SourceLoc, $SourceFile, $RefFile1, $DestPath, $RenameSource) = @ARGV ;
+
+my $sProgram = $0;
+my %MonthMap = qw/01 JAN 02 FEB 03 MAR 04 APR 05 MAY 06 JUN 07 JUL 08 AUG 09 SEP 10 OCT 11 NOV 12 DEC/;
+my $Offset = 0;
+my $day = 86400;
+my $RefFile1;
+my $YYYYMMDD = &formatdate (&absoluteoffset (time,$offset), "YYYYMNDD") ;
+
+$spaces = "
+
+print "\n\nStarted at \t\t\t" . localtine (time) . "\n" ;
+
+#### Loop through source directory, add filenames matching SourceFile regex to files array
+
+$Sourceloc =~ s/\\/\//g:
+$fileMask = $SourceLoc. "\/*";
+
+$j= 0;
+
+my $Create123=0;
+
+while (glob ($fileMask) )
+{
+	if ($_ = ~m/\/ ($SourceFile) $/gi)
+	{
+		$files [$j] = $_ ;
+		$j++;
+	}
+
+	if($_ =~ m/\/($RefFile1)$/)
+	{
+	$files [$k] = $_ ;
+	$k++;
+	print "File1 : ". $_. "\n" ;
+	}
+
+}
+
+if($files eq -1)
+{
+die ("$sProgram: No file $SourceFile Found : $!");
+}
+
+
+######### Open Reference file for processing
+
+for ($k=0;$k<=$#file1;$k++)
+{
+
+ print "Reading Reference File .... \t\t\t". localtime (time). "\n"; 
+ open (INFILE, $file1[$k]) or die ("$sProgram: Open Reference file failed : $!");
+ $RefFile1 = $file1[$k];
+
+while (<INFILE>)
+{
+	chomp ($_) :
+	@words= &quotewords (", ",0,$_) ; ####### data contains commas and double quotes
+	$InsKey = $words [8];
+	$Ins{$InsKey} = $words [11].'|'.$words [14]. '|'.$words [20].' |'. $words [17] ;
+}
+
+close INFILE;
+
+}
+
+################Open  file for processing#############
+for （$j=0; $j <= $#files;$j++）
+
+{
+
+###########glob returns full file path, need to extract filename, so that we can add a prefix
+
+$filefullpath = $files[$j];
+
+if ($filefullpath =~ /\/([^\/]*) $/)
+{
+	$filename = $1;
+}
+
+###########Add additional output files here###########
+
+$output_filename = $filename;
+
+$OUTFILE = $DestPath. $output_filename;
+$OUTFILE =~ s/.csv$/.txt/gi;
+
+
+if ($filename =~ m/SourceFile/)
+{
+
+$Create123=1;
+$OUTFILE = $DestPath. $output_filename:
+$OUTFILE =~ s/.csv$/.txt/gi;
+open (OUTFILE, ">$OUTFILE") or die ("$sProgram: Open $OUTEILE  failed :$!") ;
+
+}
+
+
+Open (INFILE, $filefullpath) or die ("$sProgram: Open $filename failed : $!") :
+Open (OUTFILE, ">$OUTFILE") or die ("$sProgram: Open $OUTFILE failed : $!"):
+
+
+my %ticket;
+$count = 0:
+
+$line2 = <INFILE>;
+chomp ($line2) ;
+
+@words = split(/,/,$line2);
+
+foreach $e (@words)
+{
+
+	$e=~ s/^"//g;
+	$e=~ s/^$//g;
+
+}
+
+if ($count == 0)
+{
+
+$BuySell= "BuySell" ; 
+push (@words, $BuySell) :
+push (@words, "RefName") :
+push (@words, "SDate") :
+push (@words, "Cty") :
+push (@words, "RefId") ;
+push (@words, "Tier") ;
+push (@words, "DocText") :
+$line2 = printline (@words) ;
+
+print OUTFILE $line2;
+
+	if ($Create123 == 1)
+{
+	print OUTFILE $line2;
+
+}
+
+$count++;
+
+while (<INFILE>)
+{
+
+	chomp ($_) ;
+	$_ =~ s/","/%/g;
+
+	@words = split (/%/,$_) ;
+
+	$_ =~ s/"%"/,/g;
+
+	foreach $e (@words)
+	{
+		$e =~ s/^"//g;
+		$e =~ s/"$//g;
+	}
+
+	$BuySell="";
+	if ($words [6] =~ m/^-/)
+	{
+
+		$BuySell = "Sell";
+	}
+
+	else
+	{
+
+	$BuySell = "Buy";
+
+	}
+
+	push (@words, $BuySell) ;
+
+
+	if ($words [3] eq "DefaultIndex")
+
+	{
+
+	$DKey = Swords[4] ;
+
+	if (exists $Ins {$DKey} )
+	{
+		$Lookup_Dest = $Ins ($Dkey} ;
+		@DskInfo=split(/\|/,Lookup_Dest) ;
+		$RefValue= $DskInfo[0];
+		$RefValuel= $DskInfo(1];
+		$RefValue2= $DskInfo[2];
+		$RefValue3= $DskInfo[3];
+		$RefValued= $DskInfo[4];
+		$RefValue5= $DskInfo[5];
+
+	}
+
+	}
+	else
+
+	{
+
+		$DeskKey = $words [4] ;
+		if (exists $InsShort ($DeskKey) )
+		{
+
+			$Lookup_Dest= $InstShort {$DeskKey} ;
+			@DskInfo=split(/\|/,$Lookup_Dest) ;
+			$RefValue= $DskInfo[0];
+			$RefValuel= $DskInfo[l];
+			$RefValue2= $DskInfo[2];
+			$RefValue3=$DskInfo [3] ;
+			$RefValue4=$DskInfo[4] ;
+			$RetValue5=$DskInfo [5] ;
+		}
+
+	}
+
+push (@words, $RefValue) ; 
+push (@words, $RefValuel) ; 
+push (@words, $RefValue2) ;
+push (@words, $RefValue3) ; 
+push (@words, $RefValue4) ;
+push (@words, $RefValue5) ;
+
+
+$linel = printline (@words) ;
+
+if ($Create123 == 1)
+{
+
+print OUTFILE $linel;
+
+}
+
+close INFILE; 
+close OUTFILE;
+
+
+}
+
+
+##############Renaming the file after processing
+
+if ($RenameSource eq "R™)
+{
+
+$renamed = 0;
+$count = 0;
+
+while ($renamed == 0)
+{
+if (not -e $filefullpath.".".$count)
+{
+
+move ($filefullpath, "$filefullpath.$count");
+move ($RefFile1, "$RefFile1.$count") ;
+$renamed = 1:
+}
+
+$count++;
+
+}
+
+}
+
+
+######Gets a file with a specific date stamp based on a specified offset from the current date #recognises date formats YYYYMMDD and DDMMYYYY
+######if more than one file matches the source file, the script takes the first file alphabetically
+
+
+sub absoluteoffset
+{
+
+####absoluteoffset - given a time and an offset specified as a number of business days, returns the time adjusted by the given offset 
+my ($in_time,$businessdays)=@_;
+
+####get the number of seconds in 5 days, and 7 days
+
+$fivedays = 5 * $day:
+$week = 7 * $day;
+
+
+####get the sign, number of full weeks, and remainder from the specified offset
+my $sign = businessdays > 0? 1 : -1;
+my $fullweeks = sprintf ("%d", abs ($businessdays) / 5) ;
+my $fremainder = abs ($businessdays) % 5;
+
+
+#####add the fractional part of the offset back on my
+$fractional = abs ($businessdays) - sprintf ("%d", abs ($businessdays) ) ;
+$remainder += $fractional;
+
+#####work out how many seconds through the current week we are ( zero = Monday 00:00 )
+my $timeinweek = ($in_time + 3 * $day) & $week;
+
+####＃if we are already past 5 days, we are in the weekend, we consider this to be Monday 00:00 
+
+if ($timeinweek > $fivedays)
+{
+$in_time += $week - $timeinweek; #round up $in_time to Monday 00:00
+$timeinweek = 0;
+}
+
+####start by multiplying the number of full weeks by 7
+my $absoffset = $sign * ($fullweeks) * 7;
+
+
+#if the remaining number of days to offset takes us into the weekend, we adjust by an additional 2 days if
+if ($timeinweek + ($sign * $remainder * $day) < 0)
+{
+$absoffset -= 2;
+}
+
+else if ($timeinweek + ($sign * $remainder * $day) > $fivedays)
+{
+$absoffset += 2;
+}
+
+
+#finally, we add the remaining number of days 
+
+$absoffset += ($sign * $remainder) ;
+
+return $in_time + ($absoffset * $day);
+
+}
+
+###### formatting the date 
+
+sub formatdate
+｛
+####formatdate sub takes a standard perl time and returns a string formatted as YYYYMMDD
+my ($in_time,$in_format) = @_;
+
+my ($Second, $Minute, $Hour,$Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime ($in_time) ;
+if ($in_ format eq "YYYYMMDD" )
+
+{
+return ($Year+1900) . substr ("0".++$Month, -2,2) . substr("0". $Day, -2,2) ;
+}
+
+else if ($in_format eq "DD/MM/YYYY")
+{
+
+return  substr ("0". $Day, -2,2). '/' . substr ("0".++$Month, -2,2) . '/'. ($Year+1900) ;
+
+}
+else if ($in_format eq "DD/Mmm/YYYY")
+{
+
+return  substr ("0". $Day, -2,2). '/'  . $MonthMap{$Month}.  '/'. ($Year+1900) ;
+
+}
+
+else if ($in_format eq "YYMMDD")
+{
+
+return ($Year,1,2) . substr ("0".++$Month, -2,2) . substr("0". $Day, -2,2) ;
+
+}
+
+
+}
+
+####### printing the value to out file 
+
+sub printline
+
+{
+
+my @words = @_:
+my $line = "";
+
+$line = substr ($words [2]. $spaces, 0,15) ;
+Sline .= substr ($words [24]. $spaces, 0,30) ; 
+$line .= substr ($words [25]. $spaces, 0,30) :
+$line .= substr ($words [26]. $spaces, 0,30) ;
+Sline .= substr($words [23]. $spaces, 0,30) :
+$line .= substr ($words [3].$spaces,0,35) ;
+$line .= substr ($words [7].$spaces, 0, 15) :
+$line .= substr (Swords [6]. $spaces, 0,20) ;
+$line .= substr (Swords [8]. $spaces, 0,30) :
+$line .= substr ($words [13]. $spaces, 0,52) ;
+$line .= substr ($words [30]. $spaces, 0,10) ;
+$line .= substr($words  [31].$sрасеs, 0,71) ;
+$line .= substr ($words [32].$spaces, 0,15) :
+$line .= substr ($words [33]. $spaces, 0,15) ;
+$line .= substr ($words [34]. $spaces, 0,20) :
+$line .="\n" ;
+
+return line;
+
+}
+print "Finished at\t\t\". localtime (time), "\n";
+
+
+
+
+
+
+
+
+
+
+
