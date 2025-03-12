@@ -1,0 +1,157 @@
+#####################################
+#######Parameter for this files are as below :
+###### 1.SourceLocation :  Location of the Input file  
+###### 2.SourceFile  :   Name of the Source file  
+###### 3.DestPath :  Location of of the Output file 
+###### 4. RenameSourceFile : True/Flase ( Rename the source file to indentify that it's processed)
+###### 5. ConnectionName : DB connection Name (not in use)
+############################
+use Text:: ParseWords;
+use File:: Copy;
+use OLE;
+##############################
+# Trim leading and trailing whitespace
+##########################
+sub trim($)
+{
+$_ = shift;
+s/^|s*//;
+s/\s*$//;
+return $_;
+}
+
+my $sProgram = $0;
+
+if (scalar (@ARGV) != 5)
+{
+print "USAGE: $sProgram ‹SourceLocation> ‹SourceFile> ‹DestPath> ‹RenameSourceFlag> <ConnectionName>"; 
+exit 1;
+}
+
+my ($SourceLoc, $SourceFile, $DestPath, $RenameSource,$sConnName) = @ARGV;
+
+
+#Formating data by specifying width of columns.
+my $format_data_line = "%-10.10s |%-10.10s |%-20.20s |%-20.20s %-20.20s %-20.20s %-20.20s |%-20.20s |%-20.20s |%-20.20s |%20.20s |%-20. 20s |%-20. 20s |%-20. 20s |%-20. 20s |%-20. 20s |%-70.70s |%-20.20s | \n" ;
+
+#Formating header by specifying width of columns.
+my $format_header_line = *%-20.20s |%-20.20s |%-20.20s |%-20.20s |%-20.20s |%-20.20s |%-20.20s |%-20.20s |%-20.205|%-20.20s |%20.20s|%-20.20s|%-20-20s|%-20.20s|%-20.20s |%-20.20s|%-70.70s|%-20.20s|\n";
+
+
+print "\n\nStarted at \t\t\t" - localtime(time). "\n" ;
+
+
+
+# Loop through source directory, add filenames matching SourceFile regex to files array
+
+$SourceLoc =~ s/\\/\//g;
+$fileMask = $SourceLoc."\/*";
+
+$j = 0;
+while(glob($fileMask))
+{
+if ($_ =~ m/\/($SourceFile)$/)
+ {
+	$files[$j] = $_;
+	$j++;
+ }
+}
+
+for（$j=0；$j＜＝$#files；$j++）
+{
+	#glob returns full file path, need to extract filename, so that we can add a prefix
+	$filefullpath = $files[$j];
+	if ($filefullpath =~ /\/([^\/]*)$/)
+	{
+	$filename = $1;
+	}
+
+
+
+ #Add additional output files here
+
+  $output_filename = $filename;
+  $output_filename =~ s/\.DAT/\.txt/gi;
+
+  $OUTFILE1 = $DestPath."\ \POC_"- $output_filename;
+
+
+ open (INFILE, $filefullpath) or die ("$sProgram: Open $filefullpath failed : $!");
+ open (OUTFILE1, ">$OUTFILE1");
+
+
+#Array containg column names as per required sequence.
+
+@col_names=("RType","NAccount",,"AIdentifier", "BDate", "Currency", "PDate","VDate","EqCurrency", "CR/DR","Amount","OSystem","SRef","TRef","TranCode", "TType","JRef","UserID","ApproverID","Comments","ICode");
+
+printf OUTFILE1 $format_header_line,@col names;
+
+$line_cnt = 0;
+
+while (<INFILE>)
+{
+	chomp ($_);
+	$line_cnt = $line_cnt + 1;
+
+	###Replacing multiple spaces by single space
+	$_ =~ s/\s+/ /g;
+	$current_line = $_;
+	
+	###Removing start and end spaces.
+	$current_line -~ s/^\s//;
+	$current line =~ s/\s$//;
+	
+	if ($current_line ne "")
+	{
+
+	  @line_items = split /\|/;
+
+	 if($line_ cnt ne 0)
+         {
+
+		$var=$line_items[0];
+
+		if($var =~ m/1/i|| $var =~ m/2/i || $var =~ m/3/i)
+
+    {
+
+########  this will directly print to the output file , however we can have few more conditions
+	
+ 		printf OUTFILE1 $format_header_line, $line_items [0], $line_items [5], $line_items[6],$line_items[7],$line_items[8],
+$line_items [9], $line_items [10], $line_items[11], $line_items [12], $line_items [14], $line_items [15],
+$line_items[16], $line_items[17],$line_items(29],$line_items[31],$line_items [32],$line_items[33],$line_items[24];
+	
+    }	
+
+$line_cnt = $line_cnt + 1;
+
+}
+
+}
+
+
+close INFILE;
+close OUTFILE1;
+
+##############Renaming the file after processing
+
+if ($RenameSourceFile eq "R")
+{
+	$renamed = 0;
+	$count = 0;
+	while ($renamed == 0)
+	{
+		if (not -e $filefullpath."."-$count)
+		{
+			move ($filefullpath, $filefullpath."."-$count);
+			$renamed = 1;
+		}
+	$count++;
+	}
+}
+
+}
+
+print "Finished at\t\t\t" . localtime(time), "\n";
+
+}
